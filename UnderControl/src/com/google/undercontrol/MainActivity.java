@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.google.undercontrol.service.AnyChatService;
+import com.google.undercontrol.utils.MyConstant;
 
 public class MainActivity extends Activity {
 	private SharedPreferences sp;
@@ -40,6 +41,20 @@ public class MainActivity extends Activity {
 	public void setServerConfig(View v) {
 		Intent intent = new Intent(this, ServerConfigActivity.class);
 		startActivity(intent);
+	}
+
+	public void connServer(View v) {
+		Intent intent=new Intent();
+		intent.setAction(MyConstant.ANYCHAT_SERVICE_RECEIVE_ACTION);
+		intent.putExtra("command", MyConstant.RECONN_SERVER);
+		sendBroadcast(intent);
+	}
+
+	public void closeConn(View v) {
+		Intent intent=new Intent();
+		intent.setAction(MyConstant.ANYCHAT_SERVICE_RECEIVE_ACTION);
+		intent.putExtra("command", MyConstant.BREAK_SERVER);
+		sendBroadcast(intent);
 	}
 
 }

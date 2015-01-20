@@ -1,10 +1,5 @@
 package com.google.undercontrol.service;
 
-import com.bairuitech.anychat.AnyChatBaseEvent;
-import com.bairuitech.anychat.AnyChatCoreSDK;
-import com.bairuitech.anychat.AnyChatDefine;
-import com.google.undercontrol.utils.MyConstant;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,11 +9,18 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.bairuitech.anychat.AnyChatBaseEvent;
+import com.bairuitech.anychat.AnyChatCoreSDK;
+import com.bairuitech.anychat.AnyChatDefine;
+import com.bairuitech.anychat.AnyChatTextMsgEvent;
+import com.google.undercontrol.utils.MyConstant;
 
 /**
  * 用户传送信息的服务
  */
-public class AnyChatService extends Service implements AnyChatBaseEvent {
+public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChatTextMsgEvent {
 	private static final String TAG = "AnyChatService";
 	/**
 	 * AnyChat通讯对象
@@ -57,33 +59,36 @@ public class AnyChatService extends Service implements AnyChatBaseEvent {
 	public void onCreate() {
 		super.onCreate();
 		sp = getSharedPreferences("config", MODE_PRIVATE);
-//		连接服务器 
-		String serverIP=sp.getString("serverIP", null);
-		if(!TextUtils.isEmpty(serverIP))connServer();
-//		注册接受信息广播接受者
+		// 连接服务器
+		String serverIP = sp.getString("serverIP", null);
+		if (!TextUtils.isEmpty(serverIP))
+			connServer();
+		// 注册接受信息广播接受者
 		regRec();
 	}
-	
+
 	/**
-	 *连接服务器 
+	 * 连接服务器
 	 */
 	public void connServer() {
 		// 初始化SDK
 		initSDK();
 		// 初始化数据
 		initData();
-//		连接服务器
+		// 连接服务器
 		anyChatSDK.Connect(mServerIP, mServerPort);
-//		登陆服务器
+		// 登陆服务器
 		anyChatSDK.Login(mName, mName);
+		anyChatSDK.SetTextMessageEvent(this);
 	}
+
 	/**
 	 * 注册接受信息广播接受者
 	 */
 	private void regRec() {
-		IntentFilter filter=new IntentFilter();
+		IntentFilter filter = new IntentFilter();
 		filter.addAction(MyConstant.ANYCHAT_SERVICE_RECEIVE_ACTION);
-		receiver=new MyReceiver();
+		receiver = new MyReceiver();
 		registerReceiver(receiver, filter);
 	}
 
@@ -119,13 +124,12 @@ public class AnyChatService extends Service implements AnyChatBaseEvent {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-//		取消接受信息的广播接受者
+		// 取消接受信息的广播接受者
 		unregisterReceiver(receiver);
-//		退出并销毁
+		// 退出并销毁
 		anyChatSDK.Logout();
 		anyChatSDK.Release();
-		
-		
+
 	}
 
 	/**
@@ -134,7 +138,7 @@ public class AnyChatService extends Service implements AnyChatBaseEvent {
 	@Override
 	public void OnAnyChatConnectMessage(boolean bSuccess) {
 		if (bSuccess) {
-			Log.v(TAG, mName+"连接服务器成功");
+			Log.v(TAG, mName + "连接服务器成功");
 		}
 
 	}
@@ -144,7 +148,11 @@ public class AnyChatService extends Service implements AnyChatBaseEvent {
 	 */
 	@Override
 	public void OnAnyChatLoginMessage(int dwUserId, int dwErrorCode) {
-		Log.v(TAG, dwUserId+"登陆成功");
+		Log.v(TAG, dwUserId + "登陆成功");
+		if (dwErrorCode == 0) {
+			// 登陆成功，进入房间
+			anyChatSDK.EnterRoom(mSRoomID, "");
+		}
 	}
 
 	/**
@@ -152,7 +160,9 @@ public class AnyChatService extends Service implements AnyChatBaseEvent {
 	 */
 	@Override
 	public void OnAnyChatEnterRoomMessage(int dwRoomId, int dwErrorCode) {
-
+		if (dwErrorCode == 0) {
+			Log.v(TAG, mName+"进入"+dwRoomId+"号房间成功");
+		}
 	}
 
 	/**
@@ -178,34 +188,50 @@ public class AnyChatService extends Service implements AnyChatBaseEvent {
 	public void OnAnyChatUserAtRoomMessage(int arg0, boolean arg1) {
 
 	}
-	
+
 	/**
 	 * 接受信息的广播接受者
 	 */
-	private class MyReceiver extends BroadcastReceiver{
+	private class MyReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String command = intent.getStringExtra("command");
-//			连接服务器
+			// 连接服务器
 			if ("connServer".equals(command)) {
 				connServer();
-			}else if(MyConstant.RECONN_SERVER.equals(command)){
-//				重新连接服务器
+			} else if (MyConstant.RECONN_SERVER.equals(command)) {
+				// 重新连接服务器
 				reConnServer();
+			}else if (MyConstant.BREAK_SERVER.equals(command)) {
+				// 断开连接
+				anyChatSDK.Logout();
+				anyChatSDK.Release();
+				anyChatSDK = null;
 			}
 		}
-		
+
 	}
+
 	/**
 	 * 重新连接服务器
 	 */
 	public void reConnServer() {
 		Log.v(TAG, "重新连接服务器");
-		anyChatSDK.Logout();
-		anyChatSDK.Release();
-		anyChatSDK=null;
+		if (anyChatSDK != null) {
+			anyChatSDK.Logout();
+			anyChatSDK.Release();
+			anyChatSDK = null;
+		}
 		connServer();
 	}
+
+	@Override
+	public void OnAnyChatTextMessage(int dwFromUserid, int dwToUserid,
+			boolean bSecret, String message) {
+		Toast.makeText(getApplicationContext(), dwFromUserid+"对我说："+message, 1).show();
+		
+	}
+
 
 }
