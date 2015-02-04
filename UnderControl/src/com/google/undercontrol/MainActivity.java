@@ -56,5 +56,9 @@ public class MainActivity extends Activity {
 		intent.putExtra("command", MyConstant.BREAK_SERVER);
 		sendBroadcast(intent);
 	}
-
+	
+	public void sendMsg(View v){
+		
+		
+	}
 }

@@ -15,12 +15,14 @@ import com.bairuitech.anychat.AnyChatBaseEvent;
 import com.bairuitech.anychat.AnyChatCoreSDK;
 import com.bairuitech.anychat.AnyChatDefine;
 import com.bairuitech.anychat.AnyChatTextMsgEvent;
+import com.google.undercontrol.engine.MsgPorcess;
 import com.google.undercontrol.utils.MyConstant;
 
 /**
  * 用户传送信息的服务
  */
-public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChatTextMsgEvent {
+public class AnyChatService extends Service implements AnyChatBaseEvent,
+		AnyChatTextMsgEvent {
 	private static final String TAG = "AnyChatService";
 	/**
 	 * AnyChat通讯对象
@@ -47,6 +49,11 @@ public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChat
 	 */
 	private String mName = "name";
 
+	/**
+	 * 信息处理类
+	 */
+	private MsgPorcess msgPorcess;
+
 	private SharedPreferences sp;
 	private BroadcastReceiver receiver;
 
@@ -59,6 +66,7 @@ public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChat
 	public void onCreate() {
 		super.onCreate();
 		sp = getSharedPreferences("config", MODE_PRIVATE);
+		msgPorcess = new MsgPorcess(getApplicationContext());
 		// 连接服务器
 		String serverIP = sp.getString("serverIP", null);
 		if (!TextUtils.isEmpty(serverIP))
@@ -161,7 +169,7 @@ public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChat
 	@Override
 	public void OnAnyChatEnterRoomMessage(int dwRoomId, int dwErrorCode) {
 		if (dwErrorCode == 0) {
-			Log.v(TAG, mName+"进入"+dwRoomId+"号房间成功");
+			Log.v(TAG, mName + "进入" + dwRoomId + "号房间成功");
 		}
 	}
 
@@ -203,14 +211,35 @@ public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChat
 			} else if (MyConstant.RECONN_SERVER.equals(command)) {
 				// 重新连接服务器
 				reConnServer();
-			}else if (MyConstant.BREAK_SERVER.equals(command)) {
+			} else if (MyConstant.BREAK_SERVER.equals(command)) {
 				// 断开连接
 				anyChatSDK.Logout();
 				anyChatSDK.Release();
 				anyChatSDK = null;
+			} else if (MyConstant.SEND.equals(command)) {
+				// 发送消息
+				int id = intent.getIntExtra("id", Integer.MAX_VALUE);
+				if (id != Integer.MAX_VALUE) {
+					String msg = intent.getStringExtra("msg");
+					send(id, msg);
+				}
 			}
 		}
 
+	}
+
+	/**
+	 * 发送信息
+	 * 
+	 * @param id
+	 *            接受者ID
+	 * @param msg
+	 *            信息内容
+	 */
+	public void send(int id, String msg) {
+		if (anyChatSDK != null) {
+			anyChatSDK.SendTextMessage(id, 0, msg);
+		}
 	}
 
 	/**
@@ -229,9 +258,9 @@ public class AnyChatService extends Service implements AnyChatBaseEvent, AnyChat
 	@Override
 	public void OnAnyChatTextMessage(int dwFromUserid, int dwToUserid,
 			boolean bSecret, String message) {
-		Toast.makeText(getApplicationContext(), dwFromUserid+"对我说："+message, 1).show();
-		
+		Toast.makeText(getApplicationContext(),
+				dwFromUserid + "对我说：" + message, 1).show();
+		msgPorcess.doPor(dwFromUserid, dwToUserid, bSecret, message);
 	}
-
 
 }

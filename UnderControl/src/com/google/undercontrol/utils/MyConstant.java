@@ -19,4 +19,8 @@ public class MyConstant {
 	 * 断开连接
 	 */
 	public static final String BREAK_SERVER = "BREAK_SERVER";
+	/**
+	 * 发送消息
+	 */
+	public static final String SEND = "send";
 }

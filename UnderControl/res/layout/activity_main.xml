@@ -72,5 +72,25 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
         android:background="#88000000" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:clickable="true"
+        android:onClick="sendMsg"
+        android:background="@drawable/text_but_bg_select"
+        android:text="发送测试信息"
+        android:textSize="22sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:background="#88000000" />
 
 </LinearLayout>

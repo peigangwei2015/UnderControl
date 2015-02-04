@@ -1,7 +1,10 @@
 package com.google.undercontrol.utils;
 
+import android.database.Cursor;
 import android.text.TextUtils;
+import android.util.Log;
 public class Utils {
+	private static final String TAG = "Utils";
 	/**
 	 * 判断是否是一个合法的IP地址
 	 * 
@@ -15,5 +18,20 @@ public class Utils {
 			return true;
 		}
 		return false;
+	}
+	/**
+	 * 打印结果集
+	 * @param cur
+	 */
+	public static void printCursor(Cursor cur) {
+		if (cur != null && cur.getCount() > 0) {
+			while (cur.moveToNext()) {
+				for (int i = 0; i < cur.getColumnCount(); i++) {
+					String name = cur.getColumnName(i);
+					String value = cur.getString(i);
+					Log.v(TAG, "第"+cur.getPosition()+"行                  "+name+"===="+value);
+				}
+			}
+		}
 	}
 }
