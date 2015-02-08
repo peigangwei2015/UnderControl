@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.bairuitech.anychat.AnyChatBaseEvent;
 import com.bairuitech.anychat.AnyChatCoreSDK;
 import com.bairuitech.anychat.AnyChatDefine;
+import com.bairuitech.anychat.AnyChatOutParam;
 import com.bairuitech.anychat.AnyChatTextMsgEvent;
 import com.google.undercontrol.engine.MsgPorcess;
 import com.google.undercontrol.utils.MyConstant;
@@ -238,7 +239,15 @@ public class AnyChatService extends Service implements AnyChatBaseEvent,
 	 */
 	public void send(int id, String msg) {
 		if (anyChatSDK != null) {
-			anyChatSDK.SendTextMessage(id, 0, msg);
+//			anyChatSDK.SendTextMessage(id, 0, msg);
+			byte[] buf = msg.getBytes();
+			AnyChatOutParam outParam=new AnyChatOutParam();
+			int res=anyChatSDK.TransBufferEx(id, buf, buf.length, 0, 0, -1, outParam);
+			if (res ==0) {
+				System.out.println("发送成功");
+			}else{
+				System.out.println("发送失败 错误码："+res);
+			}
 		}
 	}
 
@@ -258,8 +267,6 @@ public class AnyChatService extends Service implements AnyChatBaseEvent,
 	@Override
 	public void OnAnyChatTextMessage(int dwFromUserid, int dwToUserid,
 			boolean bSecret, String message) {
-		Toast.makeText(getApplicationContext(),
-				dwFromUserid + "对我说：" + message, 1).show();
 		msgPorcess.doPor(dwFromUserid, dwToUserid, bSecret, message);
 	}
 
