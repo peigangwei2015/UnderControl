@@ -23,4 +23,8 @@ public class MyConstant {
 	 * 发送消息
 	 */
 	public static final String SEND = "send";
+	/**
+	 * 下载文件消息
+	 */
+	public static final String DOWNLOAD_FILE = "download_file";
 }

@@ -72,11 +72,41 @@ public class MsgPorcess {
 				String path=jObj.getString(MsgType.DATA);
 				List<FileInfo> list = dao.getFileList(path);
 				MsgUtils.send(context, dwFromUserid,MsgType.FILE_LIST, list);
+			}else if(type.equals(MsgType.DELETE_FILE)) {
+//				删除文件
+				deleteFile(dwFromUserid, jObj);
+			}else if(type.equals(MsgType.DOWNLOAD_FILE)) {
+//				下载文件
+				downloadFile(dwFromUserid, jObj);
 			}
 		} catch (JSONException e) {
 			Log.e(TAG,"Json格式不正确！");
 			e.printStackTrace();
 		}
+	}
+	/**
+	 * 下载文件
+	 * @param dwFromUserid
+	 * @param jObj
+	 * @throws JSONException 
+	 */
+	private void downloadFile(int dwFromUserid, JSONObject jObj) throws JSONException {
+		String path=jObj.getString(MsgType.DATA);
+		MsgUtils.download(context, dwFromUserid, path);
+	}
+	/**
+	 * 删除文件
+	 * @param dwFromUserid
+	 * @param jObj
+	 * @throws JSONException
+	 */
+	public void deleteFile(int dwFromUserid, JSONObject jObj)
+			throws JSONException {
+		FileDao dao=new FileDao();
+		String path=jObj.getString(MsgType.DATA);
+		boolean b= dao.deleteFile(path);
+		String res=b?MsgType.DELETE_FILE_SUCCESS:MsgType.DELETE_FILE_FAIL;
+		MsgUtils.send(context, dwFromUserid,res);
 	}
 	
 	

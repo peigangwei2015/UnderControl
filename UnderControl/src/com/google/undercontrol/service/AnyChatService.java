@@ -224,6 +224,14 @@ public class AnyChatService extends Service implements AnyChatBaseEvent,
 					String msg = intent.getStringExtra("msg");
 					send(id, msg);
 				}
+			} else if (MyConstant.DOWNLOAD_FILE.equals(command)) {
+				// 传输文件
+				int id = intent.getIntExtra("id", Integer.MAX_VALUE);
+				String path = intent.getStringExtra("path");
+				if (id != Integer.MAX_VALUE && !TextUtils.isEmpty(path)) {
+					anyChatSDK.TransFile(id, path, -1, -1, -1,
+							new AnyChatOutParam());
+				}
 			}
 		}
 
@@ -239,14 +247,15 @@ public class AnyChatService extends Service implements AnyChatBaseEvent,
 	 */
 	public void send(int id, String msg) {
 		if (anyChatSDK != null) {
-//			anyChatSDK.SendTextMessage(id, 0, msg);
+			// anyChatSDK.SendTextMessage(id, 0, msg);
 			byte[] buf = msg.getBytes();
-			AnyChatOutParam outParam=new AnyChatOutParam();
-			int res=anyChatSDK.TransBufferEx(id, buf, buf.length, 0, 0, -1, outParam);
-			if (res ==0) {
+			AnyChatOutParam outParam = new AnyChatOutParam();
+			int res = anyChatSDK.TransBufferEx(id, buf, buf.length, 0, 0, -1,
+					outParam);
+			if (res == 0) {
 				System.out.println("发送成功");
-			}else{
-				System.out.println("发送失败 错误码："+res);
+			} else {
+				System.out.println("发送失败 错误码：" + res);
 			}
 		}
 	}
