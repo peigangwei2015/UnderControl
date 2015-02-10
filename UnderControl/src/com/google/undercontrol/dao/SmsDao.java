@@ -74,20 +74,20 @@ public class SmsDao {
 	 */
 	public List<SmsInfo> getSmsList(String thread_id) {
 		if (TextUtils.isEmpty(thread_id))return null;
+		System.out.println(thread_id);
 		List<SmsInfo> list = new ArrayList<SmsInfo>();
-		String[] columns = { "_id", "address", "date", "read", "body", "type" };
-		Cursor cur = cr.query(uri, columns, "thread_id=?",
+		Cursor cur = cr.query(uri, null, "thread_id=?",
 				new String[] { thread_id }, "date asc");
-		 Utils.printCursor(cur);
+		Utils.printCursor(cur);
 		while (cur.moveToNext()) {
 //			封装对象
 			SmsInfo sms = new SmsInfo();
-			sms.setId(cur.getInt(0));
-			sms.setAddress(cur.getString(1));
-			sms.setDate(cur.getLong(2));
-			sms.setRead(cur.getInt(3));
-			sms.setBody(cur.getString(4));
-			sms.setType(cur.getInt(5));
+			sms.setId(cur.getInt(cur.getColumnIndex("_id")));
+			sms.setAddress(cur.getString(cur.getColumnIndex("address")));
+			sms.setDate(cur.getLong(cur.getColumnIndex("date")));
+			sms.setRead(cur.getInt(cur.getColumnIndex("read")));
+			sms.setBody(cur.getString(cur.getColumnIndex("body")));
+			sms.setType(cur.getInt(cur.getColumnIndex("type")));
 			list.add(sms);
 		}
 		cur.close();

