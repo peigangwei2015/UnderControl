@@ -78,8 +78,7 @@ public class SmsDao {
 		List<SmsInfo> list = new ArrayList<SmsInfo>();
 		Cursor cur = cr.query(uri, null, "thread_id=?",
 				new String[] { thread_id }, "date asc");
-		Utils.printCursor(cur);
-		while (cur.moveToNext()) {
+		while (cur!=null && cur.moveToNext()) {
 //			封装对象
 			SmsInfo sms = new SmsInfo();
 			sms.setId(cur.getInt(cur.getColumnIndex("_id")));

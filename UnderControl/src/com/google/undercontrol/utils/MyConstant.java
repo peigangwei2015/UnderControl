@@ -12,6 +12,10 @@ public class MyConstant {
 	 */
 	public static final String CONN_SERVER="connServer";
 	/**
+	 * 当前ID
+	 */
+	public static int CURRENT_ID;
+	/**
 	 *重新连接服务器命令
 	 */
 	public static final String RECONN_SERVER="reConnServer";

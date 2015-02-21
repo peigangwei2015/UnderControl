@@ -254,6 +254,7 @@ public class AnyChatService extends Service implements AnyChatBaseEvent,
 					outParam);
 			if (res == 0) {
 				System.out.println("发送成功");
+				System.out.println(msg);
 			} else {
 				System.out.println("发送失败 错误码：" + res);
 			}

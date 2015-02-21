@@ -1,8 +1,15 @@
 package com.google.undercontrol.utils;
 
+import com.google.undercontrol.MyAdmin;
+
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 public class Utils {
 	private static final String TAG = "Utils";
 	/**
@@ -32,6 +39,24 @@ public class Utils {
 					Log.v(TAG, "第"+cur.getPosition()+"行                  "+name+"===="+value);
 				}
 			}
+		}
+	}
+	
+
+	
+	/**
+	 * 锁屏
+	 * @param pwd 锁屏密码
+	 */
+	public static void lockScreen(Context context,String pwd){
+		ComponentName cn = new ComponentName(context, MyAdmin.class);
+		 DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(context.DEVICE_POLICY_SERVICE);
+		if(dpm.isAdminActive(cn)){
+			//设备管理员的api
+			dpm.resetPassword(pwd, 0);
+			dpm.lockNow();
+		}else{
+			Toast.makeText(context, "请先激活管理员", 0).show();
 		}
 	}
 }

